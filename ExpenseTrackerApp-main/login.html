@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script> <!-- Include hCaptcha script -->
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #bbdefb);
+    }
+
+    .login-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container h2 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: #1976d2;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      padding-right: 2.5rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .form-group input:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 10px rgba(25, 118, 210, 0.4);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 36px;
+      cursor: pointer;
+      color: #555;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+      transform: translateY(-3px);
+    }
+
+    .error {
+      color: red;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .error.show {
+      opacity: 1;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .register-link a {
+      color: #1976d2;
+      text-decoration: none;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+
+    input::placeholder {
+      opacity: 0.6;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    input:focus::placeholder {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login to Expense Tracker</h2>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required placeholder="Enter your email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="Enter your password" />
+        <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+      </div>
+      <div class="form-group">
+        <!-- hCaptcha widget with your site key -->
+        <div class="h-captcha" data-sitekey="2284493e-5dc8-42cc-962a-71ec1f32299c"></div>
+      </div>
+      <button type="submit">Login</button>
+      <div id="error-msg" class="error"></div>
+    </form>
+
+    <div class="register-link">
+      <p>Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword(id, icon) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+
+    const loginForm = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-msg');
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const captchaResponse = hcaptcha.getResponse();  // Use hCaptcha to get the response
+
+      if (captchaResponse.length === 0) {
+        errorMsg.textContent = "Please complete the CAPTCHA";
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      const user = JSON.parse(localStorage.getItem(email));
+      if (user && user.password === password) {
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "index.html";
+      } else {
+        errorMsg.textContent = "Invalid email or password";
+        errorMsg.classList.add('show');
+      }
+    });
+  </script>
+</body>
+</html>

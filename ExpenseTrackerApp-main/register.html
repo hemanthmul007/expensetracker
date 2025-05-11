@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register | Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #bbdefb);
+    }
+
+    .register-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .register-container h2 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: #1976d2;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      padding-right: 2.5rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .form-group input:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 10px rgba(25, 118, 210, 0.4);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 36px;
+      cursor: pointer;
+      color: #555;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+      transform: translateY(-3px);
+    }
+
+    .error {
+      color: red;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .login-link a {
+      color: #1976d2;
+      text-decoration: none;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    input::placeholder {
+      opacity: 0.6;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    input:focus::placeholder {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Create Account</h2>
+    <form id="register-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required placeholder="Enter your email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="Enter your password" />
+        <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+      </div>
+      <div class="form-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" required placeholder="Confirm your password" />
+        <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('confirm-password', this)"></i>
+      </div>
+      <button type="submit">Register</button>
+      <div id="error-msg" class="error"></div>
+    </form>
+
+    <div class="login-link">
+      <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword(id, icon) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+
+    document.getElementById("register-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const confirmPassword = document.getElementById("confirm-password").value.trim();
+      const errorMsg = document.getElementById("error-msg");
+
+      if (password !== confirmPassword) {
+        errorMsg.textContent = "Passwords do not match";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      if (localStorage.getItem(email)) {
+        errorMsg.textContent = "Email already registered";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      const user = { email, password };
+      localStorage.setItem(email, JSON.stringify(user));
+      alert("Registration successful! Redirecting to login...");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

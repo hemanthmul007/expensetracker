@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | Expense Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #f4f6f8;
+    }
+
+    .navbar {
+      background-color: #1976d2;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .nav-links a, .nav-links button {
+      color: white;
+      margin-left: 1rem;
+      text-decoration: none;
+      font-weight: bold;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .card h2 {
+      font-size: 1.8rem;
+      color: #1976d2;
+      margin-bottom: 1rem;
+    }
+
+    .charts-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .chart-box {
+      flex: 1;
+      min-width: 45%;
+      max-width: 48%;
+      background-color: #fafafa;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+    }
+
+    .chart-box canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .info-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .info-card p {
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .info-card .info-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #1976d2;
+    }
+
+    .button {
+      background-color: #1976d2;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #1565c0;
+    }
+
+    /* Budget Alert Styling */
+    .budget-alert {
+      background-color: #f44336;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      display: none; /* Hidden by default */
+    }
+
+    @media (max-width: 768px) {
+      .chart-box {
+        min-width: 100%;
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .info-card .info-value {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">💸 Expense Tracker</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="add-expense.html">Add</a>
+      <a href="view-expenses.html">View</a>
+      <a href="reports.html">Reports</a>
+      <a href="settings.html">Settings</a>
+      <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Budget Alert Section -->
+    <div class="budget-alert" id="budget-alert">
+      You are over your budget by ₹<span id="over-budget-amount"></span>
+    </div>
+
+    <!-- Info Cards Section -->
+    <div class="info-card">
+      <div>
+        <h2>Total Expenses</h2>
+        <p id="total-spent" class="info-value">₹0</p>
+      </div>
+      <div>
+        <h2>Savings</h2>
+        <p id="savings" class="info-value">₹0</p>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-container">
+      <div class="chart-box">
+        <h2>Expenses vs Savings</h2>
+        <canvas id="expensesSavingsChart"></canvas>
+      </div>
+
+      <div class="chart-box">
+        <h2>Expenses by Category</h2>
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Check if the user is logged in, if not redirect to login
+    if (!localStorage.getItem("isLoggedIn")) {
+      window.location.href = "login.html"; // Redirect to login page if not logged in
+    }
+
+    const totalSpentEl = document.getElementById('total-spent');
+    const savingsEl = document.getElementById('savings');
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const expensesSavingsCtx = document.getElementById('expensesSavingsChart').getContext('2d');
+    const budgetAlert = document.getElementById('budget-alert');
+    const overBudgetAmount = document.getElementById('over-budget-amount');
+
+    // Load expenses data from localStorage and update charts
+    function loadExpenses() {
+      const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+      let total = 0;
+      const categoryTotals = {};
+
+      expenses.forEach((e) => {
+        total += e.amount;
+
+        if (!categoryTotals[e.category]) {
+          categoryTotals[e.category] = 0;
+        }
+        categoryTotals[e.category] += e.amount;
+      });
+
+      totalSpentEl.textContent = "₹" + total;
+
+      const salary = parseFloat(localStorage.getItem("salary") || "0");
+      savingsEl.textContent = "₹" + (salary - total);
+
+      // Expenses vs Savings Bar Chart
+      const savings = salary - total;
+      new Chart(expensesSavingsCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Expenses', 'Savings'],
+          datasets: [{
+            label: 'Amount (₹)',
+            data: [total, savings],
+            backgroundColor: ['#ff7043', '#66bb6a'], // Expenses in red, Savings in green
+            borderColor: ['#ff5722', '#388e3c'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Expenses by Category Doughnut Chart
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(categoryTotals),
+          datasets: [{
+            data: Object.values(categoryTotals),
+            backgroundColor: ['#42a5f5', '#66bb6a', '#ffa726', '#ab47bc', '#ec407a']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      checkBudget(); // Check if expenses exceed budget
+    }
+
+    // Check if the expenses exceed the budget
+    function checkBudget() {
+      const budget = parseFloat(localStorage.getItem("monthlyBudget")) || 0;
+      const totalExpenses = parseFloat(totalSpentEl.textContent.replace('₹', '') || '0');
+
+      if (totalExpenses > budget) {
+        const overBudget = totalExpenses - budget;
+        overBudgetAmount.textContent = overBudget.toFixed(2); // Show how much over the budget
+        budgetAlert.style.display = 'block'; // Show alert if over budget
+      } else {
+        budgetAlert.style.display = 'none'; // Hide alert if within budget
+      }
+    }
+
+    // Run on page load
+    window.onload = loadExpenses;
+  </script>
+</body>
+</html>

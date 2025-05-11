@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Expense | Expense Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      color: #333;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2c3e50;
+      padding: 1rem 2rem;
+      color: white;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+
+    label {
+      display: block;
+      margin: 0.75rem 0 0.3rem;
+      font-weight: 500;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 1.2rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+  <div class="logo">💸 Expense Tracker</div>
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="add-expense.html">Add</a>
+    <a href="view-expenses.html">View</a>
+    <a href="reports.html">Reports</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+
+  </nav>
+</header>
+
+
+  <div class="container">
+    <div class="card">
+      <h2>Add Expense</h2>
+      <label>Category:</label>
+      <select id="category-select">
+        <option value="">Select</option>
+        <option>Food & Beverage</option>
+        <option>Rent</option>
+        <option>Transport</option>
+        <option>Relaxing</option>
+        <option>Others</option>
+      </select>
+
+      <label>Amount (₹):</label>
+      <input type="number" id="amount-input" />
+
+      <label>Date (Optional):</label>
+      <input type="date" id="date-input" />
+
+      <button id="add-btn">Add Expense</button>
+    </div>
+
+    <div class="card">
+      <h2>Salary</h2>
+      <label>Monthly Salary:</label>
+      <input type="number" id="salary-input" placeholder="Enter your salary" />
+      <button id="save-salary-btn">Save Salary</button>
+    </div>
+  </div>
+
+  <script>
+    const categoryInput = document.getElementById("category-select");
+    const amountInput = document.getElementById("amount-input");
+    const dateInput = document.getElementById("date-input");
+    const addBtn = document.getElementById("add-btn");
+    const salaryInput = document.getElementById("salary-input");
+    const saveSalaryBtn = document.getElementById("save-salary-btn");
+
+    // Load salary from localStorage if it exists
+    salaryInput.value = localStorage.getItem("salary") || "";
+
+    addBtn.onclick = () => {
+      const category = categoryInput.value;
+      const amount = parseFloat(amountInput.value);
+      const date = dateInput.value || 'Not Specified';
+
+      if (!category || isNaN(amount)) {
+        alert("Please fill all fields correctly.");
+        return;
+      }
+
+      const newExpense = { category, amount, date };
+      const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+      expenses.push(newExpense);
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+
+      alert("Expense added!");
+      categoryInput.value = "";
+      amountInput.value = "";
+      dateInput.value = "";
+    };
+
+    saveSalaryBtn.onclick = () => {
+      const salary = parseFloat(salaryInput.value);
+      if (!isNaN(salary) && salary > 0) {
+        localStorage.setItem("salary", salary);
+        alert("Salary saved!");
+      } else {
+        alert("Please enter a valid salary");
+      }
+    };
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html"; // Redirect to login page after logout
+    }
+  </script>
+</body>
+</html>

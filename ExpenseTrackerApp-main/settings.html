@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings | Expense Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">💸 Expense Tracker</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="add-expense.html">Add</a>
+      <a href="view-expenses.html">View</a>
+      <a href="reports.html">Reports</a>
+      <a href="settings.html">Settings</a>
+      <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2>Settings</h2>
+      <label>Currency:</label>
+      <select id="currency">
+        <option selected>INR (₹)</option>
+        <option>USD ($)</option>
+        <option>EUR (€)</option>
+      </select>
+
+      <label>Monthly Budget:</label>
+      <input type="number" id="budget" placeholder="Enter budget" />
+
+      <br /><br />
+      <button onclick="saveSettings()">Save Settings</button>
+    </div>
+  </div>
+
+  <script>
+    // Function to save the settings (currency and budget)
+    function saveSettings() {
+      const budget = document.getElementById("budget").value;
+      const currency = document.getElementById("currency").value;
+
+      // Save the settings to localStorage
+      if (budget) {
+        localStorage.setItem("monthlyBudget", budget);
+      }
+
+      if (currency) {
+        localStorage.setItem("currency", currency);
+      }
+
+      alert("Settings saved successfully!");
+    }
+  </script>
+</body>
+</html>

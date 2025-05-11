@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reports | Expense Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      color: #333;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2c3e50;
+      padding: 1rem 2rem;
+      color: white;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 400px !important;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+  <div class="logo">💸 Expense Tracker</div>
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="add-expense.html">Add</a>
+    <a href="view-expenses.html">View</a>
+    <a href="reports.html">Reports</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+
+  <div class="container">
+    <div class="card">
+      <h2>Salary vs Expense Report</h2>
+      <canvas id="monthlyChart"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const salary = parseFloat(localStorage.getItem("salary")) || 0;
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+
+    // Group expenses by month
+    const monthlyTotals = Array(12).fill(0);
+    expenses.forEach(e => {
+      const month = new Date(e.date).getMonth();
+      if (!isNaN(month)) monthlyTotals[month] += parseFloat(e.amount);
+    });
+
+    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const salaryData = Array(12).fill(salary);
+
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Salary',
+            data: salaryData,
+            backgroundColor: '#2ecc71'
+          },
+          {
+            label: 'Expenses',
+            data: monthlyTotals,
+            backgroundColor: '#e74c3c'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Amount (₹)'
+            }
+          }
+        }
+      }
+    });
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html"; // Redirect to login page after logout
+    }
+  </script>
+</body>
+</html>
